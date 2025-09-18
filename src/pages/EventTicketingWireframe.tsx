@@ -177,6 +177,49 @@ function Step({ title, children, action }: { title: string; children: any; actio
   );
 }
 
+// Botón tipo píldora con animación breve al copiar
+function CopyPill({ onClick, selected, children }: { onClick: () => void; selected?: boolean; children: React.ReactNode }) {
+  const [bump, setBump] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!bump) return;
+    const t = setTimeout(() => setBump(false), 220);
+    return () => clearTimeout(t);
+  }, [bump]);
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 1200);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  return (
+    <button
+      onClick={() => {
+        onClick();
+        setBump(true);
+        setCopied(true);
+      }}
+      className={`px-3 py-1 rounded-full text-sm border cursor-pointer transition-colors ${
+        selected ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+      } ${bump ? "animate-[pop_200ms_ease-out]" : ""}`}
+      aria-live="polite"
+    >
+      <span className="inline-flex items-center gap-1">
+        {copied ? (
+          <>
+            <span>✓</span>
+            <span>Copiado</span>
+          </>
+        ) : (
+          children
+        )}
+      </span>
+    </button>
+  );
+}
+
 export default function App() {
   const [source, setSource] = useState("google_ads");
   const [capture, setCapture] = useState<string>(CAPTURE_BY_SOURCE.google_ads[0].key);
@@ -478,16 +521,12 @@ export default function App() {
                 <div className="text-sm font-semibold text-slate-800 capitalize">Ejemplo práctico {k}</div>
                 <textarea readOnly value={guide.ejemplos[k]} className="mt-2 w-full h-40 rounded-xl border-slate-300 text-sm p-3 whitespace-pre-wrap" />
                 <div className="mt-2 flex gap-2">
-                  <button
+                  <CopyPill
                     onClick={() => { navigator.clipboard.writeText(guide.ejemplos[k]); setExampleSel((s) => ({ ...s, [k]: "copiar" })); }}
-                    className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                      exampleSel[k] === "copiar"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
-                        : "bg-white text-slate-700 border-slate-300"
-                    }`}
+                    selected={exampleSel[k] === "copiar"}
                   >
                     Copiar
-                  </button>
+                  </CopyPill>
                   <button
                     onClick={() => { setMessageType(k as any); setOverrideScript(guide.ejemplos[k]); setExampleSel((s) => ({ ...s, [k]: "usar" })); }}
                     className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
@@ -768,7 +807,9 @@ export default function App() {
             <label className="text-sm text-slate-600">Guion sugerido</label>
             <textarea value={script} readOnly className="mt-1 w-full h-44 rounded-xl border-slate-300 font-mono text-sm p-3" />
             <div className="mt-2 flex items-center gap-2">
-              <button onClick={() => navigator.clipboard.writeText(script)} className="px-3 py-1 rounded-full text-sm border bg-emerald-50 text-emerald-700 border-emerald-600">Copiar guion</button>
+              <CopyPill onClick={() => navigator.clipboard.writeText(script)} selected>
+                Copiar guion
+              </CopyPill>
               {waLink && (<a href={waLink} target="_blank" rel="noreferrer" className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-600 hover:bg-emerald-100">Abrir WhatsApp</a>)}
             </div>
           </div>

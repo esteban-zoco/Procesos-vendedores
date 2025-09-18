@@ -122,3 +122,10 @@ button { font: inherit; cursor: pointer; }
     @apply bg-white text-slate-900 placeholder-slate-400;
   }
 }
+
+/* Keyframes para animación de confirmación de copia */
+@keyframes pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
