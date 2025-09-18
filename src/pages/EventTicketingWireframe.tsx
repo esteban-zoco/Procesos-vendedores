@@ -422,9 +422,9 @@ export default function App() {
   );
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 p-6 md:p-10">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <header className="flex items-center justify-between">
+    <div className="w-full min-h-screen bg-slate-50 p-4 sm:p-6 md:p-8 lg:p-10">
+      <div className="w-full space-y-6">
+        <header className="flex items-center justify-between flex-col gap-2 sm:flex-row">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900">ZOCO · Flow Interactivo de Captura → Contacto</h1>
           <Badge>Versión interactiva</Badge>
         </header>
@@ -499,7 +499,20 @@ export default function App() {
               <label className="text-sm text-slate-600">Subtipo de mensaje de WhatsApp</label>
               <div className="mt-1 flex flex-wrap gap-2">
                 {WA_SUBTYPES.map((s) => (
-                  <button key={s.key} onClick={() => { setWaSubtype(s.key); setOverrideScript(""); }} className={`px-3 py-1 rounded-full text-sm border ${waSubtype === s.key ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}>{s.label}</button>
+                  <button
+                    key={s.key}
+                    onClick={() => {
+                      setWaSubtype(s.key);
+                      setOverrideScript("");
+                    }}
+                    className={`px-3 py-1 rounded-full text-sm border ${
+                      waSubtype === s.key
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
                 ))}
               </div>
             </div>
@@ -510,7 +523,17 @@ export default function App() {
           <div className="mb-3 flex flex-wrap gap-3 items-center">
             <div className="text-sm">Tipo de persona:</div>
             {PERSON_TYPES.map((p) => (
-              <button key={p.key} onClick={() => setPersonType(p.key)} className={`px-3 py-1 rounded-full text-sm border ${personType === p.key ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}>{p.label}</button>
+              <button
+                key={p.key}
+                onClick={() => setPersonType(p.key)}
+                className={`px-3 py-1 rounded-full text-sm border ${
+                  personType === p.key
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                    : "bg-white text-slate-700 border-slate-300"
+                }`}
+              >
+                {p.label}
+              </button>
             ))}
             <div className="ml-auto text-xs text-slate-500">Descargas en el chat: Tabla de beneficios y Manual de objeciones.</div>
           </div>
@@ -532,8 +555,26 @@ export default function App() {
               <Step title="Solicitud de documentación">
                 <div className="flex items-center gap-3 text-sm">
                   <div>Vista:</div>
-                  <button onClick={() => setDocsView("lista")} className={`px-2 py-1 rounded-md border ${docsView === "lista" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-300"}`}>Lista</button>
-                  <button onClick={() => setDocsView("imagen")} className={`px-2 py-1 rounded-md border ${docsView === "imagen" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-300"}`}>Imagen</button>
+                  <button
+                    onClick={() => setDocsView("lista")}
+                    className={`px-2 py-1 rounded-md border ${
+                      docsView === "lista"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    Lista
+                  </button>
+                  <button
+                    onClick={() => setDocsView("imagen")}
+                    className={`px-2 py-1 rounded-md border ${
+                      docsView === "imagen"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    Imagen
+                  </button>
                 </div>
                 {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
               </Step>
@@ -618,8 +659,8 @@ export default function App() {
             <Step title="Calificación y ruteo final">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm">¿Califica?</span>
-                <button onClick={() => setCalifica(true)} className={`px-3 py-1 rounded-full text-sm border ${califica === true ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}>Sí</button>
-                <button onClick={() => setCalifica(false)} className={`px-3 py-1 rounded-full text-sm border ${califica === false ? "bg-rose-600 text-white border-rose-600" : "bg-white text-slate-700 border-slate-300"}`}>No</button>
+                <button onClick={() => setCalifica(true)} className={`px-3 py-1 rounded-full text-sm border ${califica === true ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}>Sí</button>
+                <button onClick={() => setCalifica(false)} className={`px-3 py-1 rounded-full text-sm border ${califica === false ? "bg-rose-50 text-rose-700 border-rose-600" : "bg-white text-slate-700 border-slate-300"}`}>No</button>
               </div>
 
               {califica === false && (
