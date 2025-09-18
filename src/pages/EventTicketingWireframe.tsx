@@ -476,7 +476,7 @@ export default function App() {
                 <div className="text-sm font-semibold text-slate-800 capitalize">Ejemplo práctico {k}</div>
                 <textarea readOnly value={guide.ejemplos[k]} className="mt-2 w-full h-40 rounded-xl border-slate-300 text-sm p-3 whitespace-pre-wrap" />
                 <div className="mt-2 flex gap-2">
-                  <button onClick={() => navigator.clipboard.writeText(guide.ejemplos[k])} className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-sm">Copiar</button>
+                  <button onClick={() => navigator.clipboard.writeText(guide.ejemplos[k])} className="px-3 py-1 rounded-lg bg-emerald-600 text-black text-sm">Copiar</button>
                   <button onClick={() => { setMessageType(k as any); setOverrideScript(guide.ejemplos[k]); }} className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-600 text-sm">Usar en generador</button>
                 </div>
               </div>
@@ -738,7 +738,7 @@ export default function App() {
             <label className="text-sm text-slate-600">Guion sugerido</label>
             <textarea value={script} readOnly className="mt-1 w-full h-44 rounded-xl border-slate-300 font-mono text-sm p-3" />
             <div className="mt-2 flex items-center gap-2">
-              <button onClick={() => navigator.clipboard.writeText(script)} className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">Copiar guion</button>
+              <button onClick={() => navigator.clipboard.writeText(script)} className="px-4 py-2 rounded-xl bg-emerald-600 text-black hover:bg-emerald-700">Copiar guion</button>
               {waLink && (<a href={waLink} target="_blank" rel="noreferrer" className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-600 hover:bg-emerald-100">Abrir WhatsApp</a>)}
             </div>
           </div>
