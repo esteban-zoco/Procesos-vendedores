@@ -191,6 +191,8 @@ export default function App() {
   ] as const;
   const [personType, setPersonType] = useState("fisica");
   const [docsView, setDocsView] = useState<"lista" | "imagen">("lista");
+  // Estado de selección visual para los dos botones de cada ejemplo
+  const [exampleSel, setExampleSel] = useState<Record<string, "copiar" | "usar" | null>>({});
 
   const DOCS: Record<string, string[]> = {
     fisica: [
@@ -455,7 +457,7 @@ export default function App() {
         <Section title="2) Identificación del cliente" right={<Badge>Frío · Tibio · Caliente</Badge>}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             {CLIENT_TYPES.map((ct) => (
-              <button key={ct.key} onClick={() => { setClientType(ct.key); setOverrideScript(""); }} className={`text-left rounded-2xl border p-4 hover:shadow-sm ${clientType === ct.key ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}>
+              <button key={ct.key} onClick={() => { setClientType(ct.key); setOverrideScript(""); }} className={`text-left rounded-2xl border p-4 hover:shadow-sm cursor-pointer ${clientType === ct.key ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}>
                 <div className="font-medium">{ct.label}</div>
                 <div className="text-sm text-slate-600 mt-1">{ct.desc}</div>
               </button>
@@ -476,8 +478,26 @@ export default function App() {
                 <div className="text-sm font-semibold text-slate-800 capitalize">Ejemplo práctico {k}</div>
                 <textarea readOnly value={guide.ejemplos[k]} className="mt-2 w-full h-40 rounded-xl border-slate-300 text-sm p-3 whitespace-pre-wrap" />
                 <div className="mt-2 flex gap-2">
-                  <button onClick={() => navigator.clipboard.writeText(guide.ejemplos[k])} className="px-3 py-1 rounded-lg bg-emerald-600 text-black text-sm">Copiar</button>
-                  <button onClick={() => { setMessageType(k as any); setOverrideScript(guide.ejemplos[k]); }} className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-600 text-sm">Usar en generador</button>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(guide.ejemplos[k]); setExampleSel((s) => ({ ...s, [k]: "copiar" })); }}
+                    className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
+                      exampleSel[k] === "copiar"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    Copiar
+                  </button>
+                  <button
+                    onClick={() => { setMessageType(k as any); setOverrideScript(guide.ejemplos[k]); setExampleSel((s) => ({ ...s, [k]: "usar" })); }}
+                    className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
+                      exampleSel[k] === "usar"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    Usar en generador
+                  </button>
                 </div>
               </div>
             ))}
@@ -487,7 +507,7 @@ export default function App() {
         <Section title="3) Tipo de mensaje">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {MESSAGE_TYPES.map((mt) => (
-              <button key={mt.key} onClick={() => { setMessageType(mt.key); setOverrideScript(""); }} className={`text-left rounded-2xl border p-4 hover:shadow-sm ${messageType === mt.key ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}>
+              <button key={mt.key} onClick={() => { setMessageType(mt.key); setOverrideScript(""); }} className={`text-left rounded-2xl border p-4 hover:shadow-sm cursor-pointer ${messageType === mt.key ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-white"}`}>
                 <div className="font-medium">{mt.label}</div>
                 <div className="text-sm text-slate-600 mt-1">{mt.key === "whatsapp" ? "Texto listo para enviar" : mt.key === "llamada" ? "Apertura + discovery + propuesta" : "Agenda de demo y cierre"}</div>
               </button>
@@ -505,7 +525,7 @@ export default function App() {
                       setWaSubtype(s.key);
                       setOverrideScript("");
                     }}
-                    className={`px-3 py-1 rounded-full text-sm border ${
+                    className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
                       waSubtype === s.key
                         ? "bg-emerald-50 text-emerald-700 border-emerald-600"
                         : "bg-white text-slate-700 border-slate-300"
@@ -526,7 +546,7 @@ export default function App() {
               <button
                 key={p.key}
                 onClick={() => setPersonType(p.key)}
-                className={`px-3 py-1 rounded-full text-sm border ${
+                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
                   personType === p.key
                     ? "bg-emerald-50 text-emerald-700 border-emerald-600"
                     : "bg-white text-slate-700 border-slate-300"
@@ -557,7 +577,7 @@ export default function App() {
                   <div>Vista:</div>
                   <button
                     onClick={() => setDocsView("lista")}
-                    className={`px-2 py-1 rounded-md border ${
+                    className={`px-2 py-1 rounded-md border cursor-pointer ${
                       docsView === "lista"
                         ? "bg-emerald-50 text-emerald-700 border-emerald-600"
                         : "bg-white text-slate-700 border-slate-300"
@@ -567,7 +587,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => setDocsView("imagen")}
-                    className={`px-2 py-1 rounded-md border ${
+                    className={`px-2 py-1 rounded-md border cursor-pointer ${
                       docsView === "imagen"
                         ? "bg-emerald-50 text-emerald-700 border-emerald-600"
                         : "bg-white text-slate-700 border-slate-300"
@@ -659,8 +679,8 @@ export default function App() {
             <Step title="Calificación y ruteo final">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm">¿Califica?</span>
-                <button onClick={() => setCalifica(true)} className={`px-3 py-1 rounded-full text-sm border ${califica === true ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}>Sí</button>
-                <button onClick={() => setCalifica(false)} className={`px-3 py-1 rounded-full text-sm border ${califica === false ? "bg-rose-50 text-rose-700 border-rose-600" : "bg-white text-slate-700 border-slate-300"}`}>No</button>
+                <button onClick={() => setCalifica(true)} className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${califica === true ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}>Sí</button>
+                <button onClick={() => setCalifica(false)} className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${califica === false ? "bg-rose-50 text-rose-700 border-rose-600" : "bg-white text-slate-700 border-slate-300"}`}>No</button>
               </div>
 
               {califica === false && (
@@ -683,8 +703,18 @@ export default function App() {
                   <div className="text-sm font-medium mt-2">Cuerpo del mail</div>
                   <textarea readOnly value={emailBody} className="rounded-xl border-slate-300 w-full h-28" />
                   <div className="flex items-center gap-2 mt-2">
-                    {mailtoLink && (<a href={mailtoLink} className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-sm">Preparar correo</a>)}
-                    <a href={csvUrl} download={`ZOCO_lead_${postNombre || "cliente"}.csv`} className="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-600 text-sm">Descargar ficha CSV</a>
+                    {mailtoLink && (
+                      <a href={mailtoLink} className="px-4 py-2 rounded-xl bg-emerald-600 text-black hover:bg-emerald-700 text-sm">
+                        Preparar correo
+                      </a>
+                    )}
+                    <a
+                      href={csvUrl}
+                      download={`ZOCO_lead_${postNombre || "cliente"}.csv`}
+                      className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-600 hover:bg-emerald-100 text-sm"
+                    >
+                      Descargar ficha CSV
+                    </a>
                   </div>
                 </div>
               )}
@@ -738,7 +768,7 @@ export default function App() {
             <label className="text-sm text-slate-600">Guion sugerido</label>
             <textarea value={script} readOnly className="mt-1 w-full h-44 rounded-xl border-slate-300 font-mono text-sm p-3" />
             <div className="mt-2 flex items-center gap-2">
-              <button onClick={() => navigator.clipboard.writeText(script)} className="px-4 py-2 rounded-xl bg-emerald-600 text-black hover:bg-emerald-700">Copiar guion</button>
+              <button onClick={() => navigator.clipboard.writeText(script)} className="px-3 py-1 rounded-full text-sm border bg-emerald-50 text-emerald-700 border-emerald-600">Copiar guion</button>
               {waLink && (<a href={waLink} target="_blank" rel="noreferrer" className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-600 hover:bg-emerald-100">Abrir WhatsApp</a>)}
             </div>
           </div>
