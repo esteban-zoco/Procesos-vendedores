@@ -411,6 +411,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
   const [volumen, setVolumen] = useState("");
   const [telefono, setTelefono] = useState("");
   const [overrideScript, setOverrideScript] = useState<string>("");
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
   // Checks adicionales para la sección 3.1
   const [chkVestimenta, setChkVestimenta] = useState(false);
@@ -536,6 +537,15 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
 
   const guide = CLIENT_GUIDE[clientType];
 
+  const IMG_PLACEHOLDERS = {
+    fisica: "/requisitos-persona-fisica.svg",
+    juridica: "/requisitos-persona-juridica.svg",
+  } as const;
+  const IMG_TARGETS = {
+    fisica: "/Persona Fisica.jpeg",
+    juridica: "/Persona Juridica.jpeg",
+  } as const;
+
   const Summary = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-700">
       <div>
@@ -631,6 +641,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   >
                     Usar en generador
                   </button>
+                  
                 </div>
               </div>
             ))}
@@ -670,41 +681,46 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
               </div>
             </div>
           )}
+
+          {messageType === "videollamada" && (
+            <div className="mt-4">
+              <label className="text-sm text-slate-600">Checklist de videollamada</label>
+              <div className="mt-1 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setChkVestimenta((v) => !v)}
+                  className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
+                    chkVestimenta ? "bg-[#fa0416] text-[#fff] border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+                  }`}
+                >
+                  Vestimenta
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChkHerramientas((v) => !v)}
+                  className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
+                    chkHerramientas ? "bg-[#fa0416] text-[#fff] border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+                  }`}
+                >
+                  Herramientas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChkFondo((v) => !v)}
+                  className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
+                    chkFondo ? "bg-[#fa0416] text-[#fff] border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+                  }`}
+                >
+                  Fondo
+                </button>
+              </div>
+            </div>
+          )}
         </Section>
 
         <Section title="3.1) Procedimiento por canal">
           <div className="mb-3 flex flex-wrap gap-3 items-center">
-            {/* Checks solicitados: Vestimenta, Herramientas, Fondo, con estilo de "píldora" */}
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-slate-600">Checklist:</div>
-              <button
-                type="button"
-                onClick={() => setChkVestimenta((v) => !v)}
-                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                  chkVestimenta ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
-                }`}
-              >
-                Vestimenta
-              </button>
-              <button
-                type="button"
-                onClick={() => setChkHerramientas((v) => !v)}
-                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                  chkHerramientas ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
-                }`}
-              >
-                Herramientas
-              </button>
-              <button
-                type="button"
-                onClick={() => setChkFondo((v) => !v)}
-                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                  chkFondo ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
-                }`}
-              >
-                Fondo
-              </button>
-            </div>
+            
 
             <div className="text-sm">Tipo de persona:</div>
             {PERSON_TYPES.map((p) => (
@@ -738,7 +754,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                 <div>Precio, tiempos, integración, contratos, seguridad, proveedor actual, tiempo, régimen, logística, documentación.</div>
               </Step>
               <Step title="Solicitud de documentación">
-                <div className="flex items-center gap-3 text-sm">
+                <div className={`text-sm ${docsView === "imagen" ? "flex flex-col items-start gap-3" : "flex items-center gap-3"}`}>
                   <div>Vista:</div>
                   <button
                     onClick={() => setDocsView("lista")}
@@ -760,9 +776,49 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   >
                     Imagen
                   </button>
+                  {docsView === "imagen" && (
+                    <div className="mt-3">
+                      <img
+                        src={IMG_TARGETS[personType]}
+                        alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                        className="w-full max-w-xl rounded-xl border border-slate-200 bg-white"
+                        onError={(e) => {
+                          const img = e.currentTarget as HTMLImageElement;
+                          if ((img as any).dataset.fallback) return;
+                          (img as any).dataset.fallback = "1";
+                          img.src = IMG_PLACEHOLDERS[personType];
+                        }}
+                      />
+                      <div className="text-xs text-slate-500 mt-2">
+                        Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
               </Step>
+              {/* Imagen de requisitos (WhatsApp) */}
+              {false && (
+                <Step title="Requisitos (imagen)">
+                  <div className="mt-1">
+                    <img
+                      src={IMG_TARGETS[personType]}
+                      alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if ((img as any).dataset.fallback) return;
+                        (img as any).dataset.fallback = "1";
+                        img.src = IMG_PLACEHOLDERS[personType];
+                      }}
+                    />
+                    <div className="text-xs text-slate-500 mt-2">
+                      Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                    </div>
+                  </div>
+                </Step>
+              )}
               <Step title="Saludo final" action={<Badge>3 variantes</Badge>}>
                 <ul className="list-disc list-inside">{SALUDOS.whatsapp.final.map((t, i) => (<li key={i}>{t}</li>))}</ul>
               </Step>
@@ -771,6 +827,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
 
           {messageType === "llamada" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
               <Step title="Speech inicial" action={<Badge>3 variantes</Badge>}>
                 <ul className="list-disc list-inside">{SALUDOS.llamada.inicial.map((t, i) => (<li key={i}>{t}</li>))}</ul>
               </Step>
@@ -785,7 +842,63 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
               </Step>
               <Step title="Solicitud de documentación">
                 {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
+                  <div className="text-sm flex items-center gap-3 mt-3">
+                    <div>Vista:</div>
+                    <button
+                      onClick={() => setDocsView("lista")}
+                      className={`px-2 py-1 rounded-md border cursor-pointer ${docsView === "lista" ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}
+                    >
+                      Lista
+                    </button>
+                    <button
+                      onClick={() => setDocsView("imagen")}
+                      className={`px-2 py-1 rounded-md border cursor-pointer ${docsView === "imagen" ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}
+                    >
+                      Imagen
+                    </button>
+                  </div>
+                  {docsView === "imagen" && (
+                    <div className="mt-3">
+                      <img
+                        src={IMG_TARGETS[personType]}
+                        alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                        className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                        onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
+                        onError={(e) => {
+                          const img = e.currentTarget as HTMLImageElement;
+                          if ((img as any).dataset.fallback) return;
+                          (img as any).dataset.fallback = "1";
+                          img.src = IMG_PLACEHOLDERS[personType];
+                        }}
+                      />
+                      <div className="text-xs text-slate-500 mt-2">
+                        Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                      </div>
+                    </div>
+                  )}
               </Step>
+              {/* Imagen de requisitos (Llamada) */}
+              {false && (
+                <Step title="Requisitos (imagen)">
+                  <div className="mt-1">
+                    <img
+                      src={IMG_TARGETS[personType]}
+                      alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if ((img as any).dataset.fallback) return;
+                        (img as any).dataset.fallback = "1";
+                        img.src = IMG_PLACEHOLDERS[personType];
+                      }}
+                    />
+                    <div className="text-xs text-slate-500 mt-2">
+                      Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                    </div>
+                  </div>
+                </Step>
+              )}
               <Step title="Speech final" action={<Badge>3 variantes</Badge>}>
                 <ul className="list-disc list-inside">{SALUDOS.llamada.final.map((t, i) => (<li key={i}>{t}</li>))}</ul>
               </Step>
@@ -794,6 +907,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
 
           {messageType === "videollamada" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              
               <Step title="Speech inicial" action={<Badge>3 variantes</Badge>}>
                 <ul className="list-disc list-inside">{SALUDOS.videollamada.inicial.map((t, i) => (<li key={i}>{t}</li>))}</ul>
               </Step>
@@ -813,6 +927,28 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
               <Step title="Solicitud de documentación">
                 {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
               </Step>
+              {/* Imagen de requisitos (Videollamada) */}
+              {false && (
+                <Step title="Requisitos (imagen)">
+                  <div className="mt-1">
+                    <img
+                      src={IMG_TARGETS[personType]}
+                      alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if ((img as any).dataset.fallback) return;
+                        (img as any).dataset.fallback = "1";
+                        img.src = IMG_PLACEHOLDERS[personType];
+                      }}
+                    />
+                    <div className="text-xs text-slate-500 mt-2">
+                      Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                    </div>
+                  </div>
+                </Step>
+              )}
               <Step title="Speech final" action={<Badge>3 variantes</Badge>}>
                 <ul className="list-disc list-inside">{SALUDOS.videollamada.final.map((t, i) => (<li key={i}>{t}</li>))}</ul>
               </Step>
