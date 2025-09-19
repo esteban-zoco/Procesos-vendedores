@@ -690,7 +690,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   type="button"
                   onClick={() => setChkVestimenta((v) => !v)}
                   className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                    chkVestimenta ? "bg-[#fa0416] text-[#fff] border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+                    chkVestimenta ? "bg-white text-slate-700 border-slate-300" : "bg-[#fa0416] text-[#fff] border-emerald-600"
                   }`}
                 >
                   Vestimenta
@@ -699,7 +699,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   type="button"
                   onClick={() => setChkHerramientas((v) => !v)}
                   className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                    chkHerramientas ? "bg-[#fa0416] text-[#fff] border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+                    chkHerramientas ? "bg-white text-slate-700 border-slate-300" : "bg-[#fa0416] text-[#fff] border-emerald-600"
                   }`}
                 >
                   Herramientas
@@ -708,7 +708,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   type="button"
                   onClick={() => setChkFondo((v) => !v)}
                   className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                    chkFondo ? "bg-[#fa0416] text-[#fff] border-emerald-600" : "bg-white text-slate-700 border-slate-300"
+                    chkFondo ?"bg-white text-slate-700 border-slate-300" : "bg-[#fa0416] text-[#fff] border-emerald-600"
                   }`}
                 >
                   Fondo
