@@ -754,48 +754,54 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                 <div>Precio, tiempos, integración, contratos, seguridad, proveedor actual, tiempo, régimen, logística, documentación.</div>
               </Step>
               <Step title="Solicitud de documentación">
-                <div className={`text-sm ${docsView === "imagen" ? "flex flex-col items-start gap-3" : "flex items-center gap-3"}`}>
+                <div className="text-sm flex items-center gap-3">
                   <div>Vista:</div>
-                  <button
-                    onClick={() => setDocsView("lista")}
-                    className={`px-2 py-1 rounded-md border cursor-pointer ${
-                      docsView === "lista"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
-                        : "bg-white text-slate-700 border-slate-300"
-                    }`}
-                  >
-                    Lista
-                  </button>
-                  <button
-                    onClick={() => setDocsView("imagen")}
-                    className={`px-2 py-1 rounded-md border cursor-pointer ${
-                      docsView === "imagen"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-600"
-                        : "bg-white text-slate-700 border-slate-300"
-                    }`}
-                  >
-                    Imagen
-                  </button>
-                  {docsView === "imagen" && (
-                    <div className="mt-3">
-                      <img
-                        src={IMG_TARGETS[personType]}
-                        alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
-                        className="w-full max-w-xl rounded-xl border border-slate-200 bg-white"
-                        onError={(e) => {
-                          const img = e.currentTarget as HTMLImageElement;
-                          if ((img as any).dataset.fallback) return;
-                          (img as any).dataset.fallback = "1";
-                          img.src = IMG_PLACEHOLDERS[personType];
-                        }}
-                      />
-                      <div className="text-xs text-slate-500 mt-2">
-                        Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
-                      </div>
-                    </div>
-                  )}
+                  <div className="inline-flex gap-2">
+                    <button
+                      onClick={() => setDocsView("lista")}
+                      className={`px-2 py-1 rounded-md border cursor-pointer ${
+                        docsView === "lista"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                          : "bg-white text-slate-700 border-slate-300"
+                      }`}
+                    >
+                      Lista
+                    </button>
+                    <button
+                      onClick={() => setDocsView("imagen")}
+                      className={`px-2 py-1 rounded-md border cursor-pointer ${
+                        docsView === "imagen"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                          : "bg-white text-slate-700 border-slate-300"
+                      }`}
+                    >
+                      Imagen
+                    </button>
+                  </div>
                 </div>
-                {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
+                {docsView === "imagen" && (
+                  <div className="mt-3">
+                    <img
+                      src={IMG_TARGETS[personType]}
+                      alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                      className="w-full max-w-xl rounded-xl border border-slate-200 bg-white"
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if ((img as any).dataset.fallback) return;
+                        (img as any).dataset.fallback = "1";
+                        img.src = IMG_PLACEHOLDERS[personType];
+                      }}
+                    />
+                    <div className="text-xs text-slate-500 mt-2">
+                      Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                    </div>
+                  </div>
+                )}
+                {docsView === "lista" ? (
+                  <ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>
+                ) : (
+                  <div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>
+                )}
               </Step>
               {/* Imagen de requisitos (WhatsApp) */}
               {false && (
@@ -841,9 +847,9 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                 <div>Precio, tiempos, integración, contratos, seguridad, proveedor actual, tiempo, régimen, logística, documentación.</div>
               </Step>
               <Step title="Solicitud de documentación">
-                {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
-                  <div className="text-sm flex items-center gap-3 mt-3">
-                    <div>Vista:</div>
+                <div className="text-sm flex items-center gap-3">
+                  <div>Vista:</div>
+                  <div className="inline-flex gap-2">
                     <button
                       onClick={() => setDocsView("lista")}
                       className={`px-2 py-1 rounded-md border cursor-pointer ${docsView === "lista" ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"}`}
@@ -857,25 +863,31 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                       Imagen
                     </button>
                   </div>
-                  {docsView === "imagen" && (
-                    <div className="mt-3">
-                      <img
-                        src={IMG_TARGETS[personType]}
-                        alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
-                        className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
-                        onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
-                        onError={(e) => {
-                          const img = e.currentTarget as HTMLImageElement;
-                          if ((img as any).dataset.fallback) return;
-                          (img as any).dataset.fallback = "1";
-                          img.src = IMG_PLACEHOLDERS[personType];
-                        }}
-                      />
-                      <div className="text-xs text-slate-500 mt-2">
-                        Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
-                      </div>
+                </div>
+                {docsView === "imagen" && (
+                  <div className="mt-3">
+                    <img
+                      src={IMG_TARGETS[personType]}
+                      alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if ((img as any).dataset.fallback) return;
+                        (img as any).dataset.fallback = "1";
+                        img.src = IMG_PLACEHOLDERS[personType];
+                      }}
+                    />
+                    <div className="text-xs text-slate-500 mt-2">
+                      Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
                     </div>
-                  )}
+                  </div>
+                )}
+                {docsView === "lista" ? (
+                  <ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>
+                ) : (
+                  <div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>
+                )}
               </Step>
               {/* Imagen de requisitos (Llamada) */}
               {false && (
@@ -925,7 +937,55 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                 <div>Precio, tiempos, integración, contratos, seguridad, proveedor actual, tiempo, régimen, logística, documentación.</div>
               </Step>
               <Step title="Solicitud de documentación">
-                {docsView === "lista" ? (<ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>) : (<div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>)}
+                <div className="text-sm flex items-center gap-3">
+                  <div>Vista:</div>
+                  <div className="inline-flex gap-2">
+                    <button
+                      onClick={() => setDocsView("lista")}
+                      className={`px-2 py-1 rounded-md border cursor-pointer ${
+                        docsView === "lista"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                          : "bg-white text-slate-700 border-slate-300"
+                      }`}
+                    >
+                      Lista
+                    </button>
+                    <button
+                      onClick={() => setDocsView("imagen")}
+                      className={`px-2 py-1 rounded-md border cursor-pointer ${
+                        docsView === "imagen"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-600"
+                          : "bg-white text-slate-700 border-slate-300"
+                      }`}
+                    >
+                      Imagen
+                    </button>
+                  </div>
+                </div>
+                {docsView === "imagen" && (
+                  <div className="mt-3">
+                    <img
+                      src={IMG_TARGETS[personType]}
+                      alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
+                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if ((img as any).dataset.fallback) return;
+                        (img as any).dataset.fallback = "1";
+                        img.src = IMG_PLACEHOLDERS[personType];
+                      }}
+                    />
+                    <div className="text-xs text-slate-500 mt-2">
+                      Si no ves la imagen, subi los archivos a public/ con estos nombres: requisitos-persona-fisica.jpg y requisitos-persona-juridica.jpg
+                    </div>
+                  </div>
+                )}
+                {docsView === "lista" ? (
+                  <ul className="mt-2 list-disc list-inside">{DOCS[personType].map((d, i) => (<li key={i}>{d}</li>))}</ul>
+                ) : (
+                  <div className="mt-2 text-xs text-slate-500">Ver imagen en el chat adjunto para {personType === "fisica" ? "Persona Física" : "Persona Jurídica"}.</div>
+                )}
               </Step>
               {/* Imagen de requisitos (Videollamada) */}
               {false && (
