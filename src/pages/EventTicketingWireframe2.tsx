@@ -234,96 +234,7 @@ export default function App() {
   ] as const;
   const [personType, setPersonType] = useState("fisica");
   const [docsView, setDocsView] = useState<"lista" | "imagen">("lista");
-
-  // Escenarios dinámicos (agregado desde Zoco flow, no modifica lógica existente)
-  const [scenario, setScenario] = useState<"entrega" | "primer_contacto" | "venta_resumen" | "filtro_prospecto" | "recontacto" | "simulador" | "rentas">("entrega");
-  const SCENARIOS: Record<typeof scenario, string> = {
-entrega: `
-
-Hola ------, Karina de ZOCO te saluda 💚
-
-Hoy vamos a entregarte tu nueva terminal Clover, un equipo moderno, ágil y con múltiples funcionalidades que va a facilitar muchísimo tu gestión diaria ✨
-
-📦 Junto con la terminal, recibirás:
-✔️ Cargador y accesorios correspondientes
-🔑 Clave de ingreso al equipo: 1234
-
-🔗 Guía rápida de uso:
-Te dejo este video con el paso a paso para que puedas realizar tus ventas de forma correcta y sin complicaciones:
-👉 Ver video instructivo
-
-https://www.youtube.com/watch?v=np_UlmA7Wsc 
-
-Además, te comparto una herramienta clave para optimizar tus cobros:
-
-📲 Simulador de costos ZOCO
-Desde nuestra web podés estimar el resultado de cada venta con anticipación, visualizar qué importe vas a recibir y ajustar tu precio final si lo necesitás ✅
-
-🌐 Ingresá a: www.zocopagos.com
-Inicias sesión parte superior derecha 
- 👤 Usuario: tu CUIT
- 🔐 Contraseña inicial: 1234 (podés cambiarla desde el ícono de perfil 👤 )
-Pestaña "SIMULADOR" `,
-    primer_contacto: `
-
-👋 Buenos días! Karina de ZOCO te saluda 💚
-
-Antes que nada, gracias por tu contacto, es muy valioso para nosotros.
-
-En este momento no estamos ofreciendo créditos personales, pero si contás con un establecimiento comercial y te interesa potenciarlo con nuestras herramientas de cobro, pedime más info. Estoy para asistirte 🙌
-
-¡Que tengas un excelente día y gracias por pensar en ZOCO!`,
-    venta_resumen: `
-
-Para poder detectar en qué establecimiento realizaste la compra, por favor brindame:
-🔹 Últimos 4 números de la tarjeta
-🔹 Importe exacto
-🔹 Fecha de la compra
-
-Con estos datos reviso el caso y te doy una respuesta precisa 💚`,
-    filtro_prospecto: `
-
-💚 ¡Hola! Soy Karina de ZOCO
-En ZOCO Servicios de Pago te ayudamos a cobrar fácil, rápido y seguro, con atención humana.
-
-Para armarte una propuesta a medida, contame:
-📌 ¿Sos Monotributista, Responsable Inscripto o representás a una Sociedad?
-Con esa info te paso requisitos y beneficios para que empieces a vender más, sin complicaciones 🚀.`,
-    recontacto: `
-
-💚 ¡Hola de nuevo! Karina de ZOCO por acá
-
-Info clave sobre lo que nos hace diferentes:
-
-Aranceles: Crédito 1,80% (final 4,99%) | Débito 0,80% (final 3,19%)
-Beneficio impositivo: como somos agente de retención, las retenciones se descuentan del arancel y no del bruto de la venta.
-Plan Súper Simple ZOCO: de 2 a 12 cuotas con el costo financiero más bajo del mercado.
-Adelanto de pagos: 0,42%.
-
-También tenés:
-🔹 Panel de control 100% digital y sin costo
-📌 Liquidaciones, 📊 comportamiento de ventas, 🧮 simulador de costos
-
-Si querés avanzar, te paso la ficha de alta y te acompaño en todo el proceso 💻 www.zocopagos.com`,
-    simulador: `
-
-Te comparto los pasos para usar el simulador de costos en la web de ZOCO.
-
-Este simulador te permite estimar el resultado de cada venta con anticipación y ajustar el precio final si lo necesitás ✅
-
-Es útil para ver costos aplicados e importe real a recibir.
-
-En breve te paso el instructivo paso a paso. Quedo atenta si te surge alguna duda 🙌`,
-    rentas: `
-
-Como ZOCO es Agente de Retención, hay requisitos mínimos.
-
-👉 Para adherirte, debés estar inscripto en Arca y contar con las inscripciones fiscales correspondientes (Rentas).
-
-Sin esa condición no podemos avanzar con la activación de tu terminal.
-
-Si más adelante regularizás tu situación, escribime y retomamos el proceso 💚`,
-  };  // Estado de selección visual para los dos botones de cada ejemplo
+  // Estado de selección visual para los dos botones de cada ejemplo
   const [exampleSel, setExampleSel] = useState<Record<string, "copiar" | "usar" | null>>({});
 
   const DOCS: Record<string, string[]> = {
@@ -411,11 +322,6 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
   const [volumen, setVolumen] = useState("");
   const [telefono, setTelefono] = useState("");
   const [overrideScript, setOverrideScript] = useState<string>("");
-
-  // Checks adicionales para la sección 3.1
-  const [chkVestimenta, setChkVestimenta] = useState(false);
-  const [chkHerramientas, setChkHerramientas] = useState(false);
-  const [chkFondo, setChkFondo] = useState(false);
 
   const [postNombre, setPostNombre] = useState("");
   const [postApellido, setPostApellido] = useState("");
@@ -530,9 +436,9 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
 
   const waLink = useMemo(() => {
     const phone = (telefono || "").replace(/[^0-9]/g, "");
-    if (!phone) return "";
+    if (!phone || messageType !== "whatsapp") return "";
     return `https://wa.me/${phone}?text=${encodeURIComponent(script)}`;
-  }, [telefono, script]);
+  }, [telefono, messageType, script]);
 
   const guide = CLIENT_GUIDE[clientType];
 
@@ -674,38 +580,6 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
 
         <Section title="3.1) Procedimiento por canal">
           <div className="mb-3 flex flex-wrap gap-3 items-center">
-            {/* Checks solicitados: Vestimenta, Herramientas, Fondo, con estilo de "píldora" */}
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-slate-600">Checklist:</div>
-              <button
-                type="button"
-                onClick={() => setChkVestimenta((v) => !v)}
-                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                  chkVestimenta ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
-                }`}
-              >
-                Vestimenta
-              </button>
-              <button
-                type="button"
-                onClick={() => setChkHerramientas((v) => !v)}
-                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                  chkHerramientas ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
-                }`}
-              >
-                Herramientas
-              </button>
-              <button
-                type="button"
-                onClick={() => setChkFondo((v) => !v)}
-                className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                  chkFondo ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-white text-slate-700 border-slate-300"
-                }`}
-              >
-                Fondo
-              </button>
-            </div>
-
             <div className="text-sm">Tipo de persona:</div>
             {PERSON_TYPES.map((p) => (
               <button
@@ -820,36 +694,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
           )}
         </Section>
 
-        
-        <Section title="3.1.b) Posibles escenarios">
-          <div className="grid grid-cols-1 gap-3">
-            <Step
-              title="POSIBLES ESCENARIOS"
-              action={
-                <div className="flex gap-2">
-                  <select
-                    value={scenario}
-                    onChange={(e) => setScenario(e.target.value as typeof scenario)}
-                    className="px-2 py-1 rounded-md border border-slate-300 text-sm"
-                  >
-                    <option value="entrega">ENTREGA DE TERMINALES</option>
-                    <option value="primer_contacto">1er Contacto</option>
-                    <option value="venta_resumen">Contacto Venta Resumen ZOCO</option>
-                    <option value="filtro_prospecto">Contacto filtro Prospecto</option>
-                    <option value="recontacto">Recontacto</option>
-                    <option value="simulador">Simulador de costos</option>
-                    <option value="rentas">Rentas</option>
-                  </select>
-                  <button onClick={() => navigator.clipboard.writeText(SCENARIOS[scenario])} className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-sm">Copiar</button>
-                </div>
-              }
-            >
-              <textarea readOnly value={SCENARIOS[scenario]} className="mt-2 w-full h-96 rounded-xl border-slate-300 text-sm p-3 whitespace-pre-wrap" />
-            </Step>
-          </div>
-        </Section>
-
-<Section title="3.2) Post contacto">
+        <Section title="3.2) Post contacto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Step title="Ficha de cliente potencial">
               <div className="grid grid-cols-1 gap-2">
@@ -935,6 +780,14 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
               <input value={franja} onChange={(e) => setFranja(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" placeholder="hoy 16:00–18:00" />
             </div>
             <div>
+              <label className="text-sm text-slate-600">Plan</label>
+              <input value={plan} onChange={(e) => setPlan(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" />
+            </div>
+            <div>
+              <label className="text-sm text-slate-600">Tarifa final</label>
+              <input value={tarifa} onChange={(e) => setTarifa(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" placeholder="ej: 4.99%" />
+            </div>
+            <div>
               <label className="text-sm text-slate-600">Rubro</label>
               <input value={rubro} onChange={(e) => setRubro(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" />
             </div>
@@ -942,10 +795,12 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
               <label className="text-sm text-slate-600">Volumen mensual</label>
               <input value={volumen} onChange={(e) => setVolumen(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" placeholder="ARS" />
             </div>
-            <div>
-              <label className="text-sm text-slate-600">Teléfono (solo números con país)</label>
-              <input value={telefono} onChange={(e) => setTelefono(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" placeholder="54911..." />
-            </div>
+            {messageType === "whatsapp" && (
+              <div>
+                <label className="text-sm text-slate-600">Teléfono (solo números con país)</label>
+                <input value={telefono} onChange={(e) => setTelefono(e.target.value)} className="mt-1 w-full rounded-xl border-slate-300" placeholder="54911..." />
+              </div>
+            )}
           </div>
 
           <div className="mt-4">
