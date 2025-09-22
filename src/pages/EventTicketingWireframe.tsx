@@ -239,8 +239,7 @@ export default function App() {
   const [scenario, setScenario] = useState<"entrega" | "primer_contacto" | "venta_resumen" | "filtro_prospecto" | "recontacto" | "simulador" | "rentas">("entrega");
   const SCENARIOS: Record<typeof scenario, string> = {
 entrega: `
-
-Hola ------, Karina de ZOCO te saluda 💚
+Hola ------, [Nombre] de ZOCO te saluda 💚
 
 Hoy vamos a entregarte tu nueva terminal Clover, un equipo moderno, ágil y con múltiples funcionalidades que va a facilitar muchísimo tu gestión diaria ✨
 
@@ -265,8 +264,7 @@ Inicias sesión parte superior derecha
  🔐 Contraseña inicial: 1234 (podés cambiarla desde el ícono de perfil 👤 )
 Pestaña "SIMULADOR" `,
     primer_contacto: `
-
-👋 Buenos días! Karina de ZOCO te saluda 💚
+👋 Buenos días! [Nombre] de ZOCO te saluda 💚
 
 Antes que nada, gracias por tu contacto, es muy valioso para nosotros.
 
@@ -274,7 +272,6 @@ En este momento no estamos ofreciendo créditos personales, pero si contás con 
 
 ¡Que tengas un excelente día y gracias por pensar en ZOCO!`,
     venta_resumen: `
-
 Para poder detectar en qué establecimiento realizaste la compra, por favor brindame:
 🔹 Últimos 4 números de la tarjeta
 🔹 Importe exacto
@@ -282,16 +279,14 @@ Para poder detectar en qué establecimiento realizaste la compra, por favor brin
 
 Con estos datos reviso el caso y te doy una respuesta precisa 💚`,
     filtro_prospecto: `
-
-💚 ¡Hola! Soy Karina de ZOCO
+💚 ¡Hola! Soy [Nombre] de ZOCO
 En ZOCO Servicios de Pago te ayudamos a cobrar fácil, rápido y seguro, con atención humana.
 
 Para armarte una propuesta a medida, contame:
 📌 ¿Sos Monotributista, Responsable Inscripto o representás a una Sociedad?
 Con esa info te paso requisitos y beneficios para que empieces a vender más, sin complicaciones 🚀.`,
     recontacto: `
-
-💚 ¡Hola de nuevo! Karina de ZOCO por acá
+💚 ¡Hola de nuevo! [Nombre] de ZOCO por acá
 
 Info clave sobre lo que nos hace diferentes:
 
@@ -306,7 +301,6 @@ También tenés:
 
 Si querés avanzar, te paso la ficha de alta y te acompaño en todo el proceso 💻 www.zocopagos.com`,
     simulador: `
-
 Te comparto los pasos para usar el simulador de costos en la web de ZOCO.
 
 Este simulador te permite estimar el resultado de cada venta con anticipación y ajustar el precio final si lo necesitás ✅
@@ -412,6 +406,13 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
   const [telefono, setTelefono] = useState("");
   const [overrideScript, setOverrideScript] = useState<string>("");
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewSrc(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // Checks adicionales para la sección 3.1
   const [chkVestimenta, setChkVestimenta] = useState(false);
@@ -477,6 +478,35 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
     ];
   }, [postNombre, postApellido, postCUIT, postEmail, postTel, postRubro, postVol, source, capture, route, clientType, personType, califica, motivoNo, remarketingFecha, postObs]);
 
+  // Objeto listo para guardar en MongoDB
+  const leadPayload = useMemo(() => {
+    const srcLabel = SOURCES.find((s) => s.key === source)?.label || "";
+    const capLabel = (CAPTURE_BY_SOURCE[source] || []).find((c) => c.key === capture)?.label || "";
+    const routeLabel = ROUTE_LABELS[route] || "";
+    const clienteLabel = CLIENT_TYPES.find((c) => c.key === clientType)?.label || "";
+    const personaLabel = PERSON_TYPES.find((p) => p.key === personType)?.label || "";
+    return {
+      fecha: new Date().toISOString().slice(0, 10),
+      nombre: postNombre,
+      apellido: postApellido,
+      cuit: postCUIT,
+      email: postEmail,
+      telefono: postTel,
+      rubro: postRubro,
+      volumenEstimado: postVol,
+      origen: srcLabel,
+      puntoCaptura: capLabel,
+      ruteo: routeLabel,
+      tipoCliente: clienteLabel,
+      tipoPersona: personaLabel,
+      califica: califica === null ? "" : califica ? "Sí" : "No",
+      motivoNoCalifica: motivoNo,
+      proximoContacto: remarketingFecha,
+      observaciones: postObs,
+      raw: { source, capture, route, clientType, personType },
+    } as any;
+  }, [postNombre, postApellido, postCUIT, postEmail, postTel, postRubro, postVol, source, capture, route, clientType, personType, califica, motivoNo, remarketingFecha, postObs]);
+
   const csvContent = useMemo(() => {
     const esc = (v: any) => `"${(v ?? "").toString().replace(/"/g, '""')}"`;
     return csvHeaders.join(",") + "\n" + csvRow.map(esc).join(",");
@@ -489,6 +519,29 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
     setCsvUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [csvContent]);
+
+  // Guardado en API
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+  async function guardarLead() {
+    try {
+      setSaving(true);
+      setSaveMsg("");
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(leadPayload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data?.error || 'No se pudo guardar');
+      setSaveMsg('Lead guardado');
+    } catch (e) {
+      setSaveMsg('Error al guardar');
+    } finally {
+      setSaving(false);
+      setTimeout(() => setSaveMsg(""), 2500);
+    }
+  }
 
   const emailSubject = useMemo(() => `Lead calificado – ${postNombre} ${postApellido} – ${personType === "fisica" ? "PF" : "PJ"}`, [postNombre, postApellido, personType]);
 
@@ -690,7 +743,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   type="button"
                   onClick={() => setChkVestimenta((v) => !v)}
                   className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                    chkVestimenta ? "bg-white text-slate-700 border-slate-300" : "bg-[#fa0416] text-[#fff] border-emerald-600"
+                    chkVestimenta ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-[#fa0416] text-[#fff] border-emerald-600"
                   }`}
                 >
                   Vestimenta
@@ -699,7 +752,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   type="button"
                   onClick={() => setChkHerramientas((v) => !v)}
                   className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                    chkHerramientas ? "bg-white text-slate-700 border-slate-300" : "bg-[#fa0416] text-[#fff] border-emerald-600"
+                    chkHerramientas ? "bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-[#fa0416] text-[#fff] border-emerald-600"
                   }`}
                 >
                   Herramientas
@@ -708,7 +761,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   type="button"
                   onClick={() => setChkFondo((v) => !v)}
                   className={`px-3 py-1 rounded-full text-sm border cursor-pointer ${
-                    chkFondo ?"bg-white text-slate-700 border-slate-300" : "bg-[#fa0416] text-[#fff] border-emerald-600"
+                    chkFondo ?"bg-emerald-50 text-emerald-700 border-emerald-600" : "bg-[#fa0416] text-[#fff] border-emerald-600"
                   }`}
                 >
                   Fondo
@@ -784,7 +837,8 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                     <img
                       src={IMG_TARGETS[personType]}
                       alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
-                      className="w-full max-w-xl rounded-xl border border-slate-200 bg-white"
+                      className="w-full max-w-xs md:max-w-sm rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement;
                         if ((img as any).dataset.fallback) return;
@@ -869,7 +923,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                     <img
                       src={IMG_TARGETS[personType]}
                       alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
-                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      className="w-full max-w-xs md:max-w-sm rounded-xl border border-slate-200 bg-white cursor-zoom-in"
                       onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement;
@@ -967,7 +1021,7 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                     <img
                       src={IMG_TARGETS[personType]}
                       alt={`Requisitos para alta - ${personType === "fisica" ? "Persona Fisica" : "Persona Juridica"}`}
-                      className="w-full max-w-md rounded-xl border border-slate-200 bg-white cursor-zoom-in"
+                      className="w-full max-w-xs md:max-w-sm rounded-xl border border-slate-200 bg-white cursor-zoom-in"
                       onClick={() => setPreviewSrc(IMG_TARGETS[personType])}
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement;
@@ -1079,6 +1133,23 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                   <input placeholder="Motivo de no calificación" value={motivoNo} onChange={(e) => setMotivoNo(e.target.value)} className="rounded-xl border-slate-300 w-full" />
                   <div className="text-sm">Próximo contacto (fecha)</div>
                   <input type="date" value={remarketingFecha} onChange={(e) => setRemarketingFecha(e.target.value)} className="rounded-xl border-slate-300" />
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      onClick={guardarLead}
+                      disabled={saving}
+                      className="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-600 hover:bg-blue-100 text-sm disabled:opacity-60"
+                    >
+                      {saving ? 'Guardando…' : 'Guardar lead'}
+                    </button>
+                    {saveMsg && <span className="text-xs text-slate-600">{saveMsg}</span>}
+                    <a
+                      href={'/api/leads/csv'}
+                      download={`ZOCO_leads.csv`}
+                      className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-600 hover:bg-emerald-100 text-sm"
+                    >
+                      Descargar CSV (histórico)
+                    </a>
+                  </div>
                   <div className="text-xs text-slate-500">Descargá la ficha y enviá a la lista de Clientes de Remarketing.</div>
                 </div>
               )}
@@ -1098,12 +1169,20 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
                         Preparar correo
                       </a>
                     )}
+                    <button
+                      onClick={guardarLead}
+                      disabled={saving}
+                      className="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-600 hover:bg-blue-100 text-sm disabled:opacity-60"
+                    >
+                      {saving ? 'Guardando…' : 'Guardar lead'}
+                    </button>
+                    {saveMsg && <span className="text-xs text-slate-600">{saveMsg}</span>}
                     <a
-                      href={csvUrl}
-                      download={`ZOCO_lead_${postNombre || "cliente"}.csv`}
+                      href={'/api/leads/csv'}
+                      download={`ZOCO_leads.csv`}
                       className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-600 hover:bg-emerald-100 text-sm"
                     >
-                      Descargar ficha CSV
+                      Descargar CSV (histórico)
                     </a>
                   </div>
                 </div>
@@ -1160,8 +1239,23 @@ Si más adelante regularizás tu situación, escribime y retomamos el proceso �
           <Summary />
         </Section>
 
-        <footer className="text-xs text-slate-500 pt-4">Basado en el diagrama y las plantillas provistas. Esta herramienta no guarda datos.</footer>
+        <footer className="text-xs text-slate-500 pt-4">Basado en el diagrama y las plantillas provistas.</footer>
       </div>
+      {previewSrc && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setPreviewSrc(null)}
+          aria-modal
+          role="dialog"
+        >
+          <img
+            src={previewSrc}
+            alt="Vista previa"
+            className="max-w-[95vw] max-h-[90vh] rounded-xl shadow-2xl cursor-zoom-out select-none"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
